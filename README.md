@@ -1,16 +1,42 @@
-# React + Vite
+# KINETIC STUDIO — Ruang Kerja & Produktivitas
 
-This template provides a minimal setup to get React working in Vite with HMR and some Oxlint rules.
+Landing page interaktif untuk brand ruang kerja fisik (*physical workspace architecture & productivity*) dengan animasi hero berbasis urutan frame kanvas (*scroll-driven video/frame sequence*), rasio emas asimetris ($\phi = 1.618$), dan copywriting autentik tanpa klise AI slop.
 
-Currently, two official plugins are available:
+## Fitur Utama
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Oxc](https://oxc.rs)
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/)
+- **Scroll-Driven Canvas Hero**: Rendering rangkaian 120 frame WebP presisi tinggi pada elemen `<canvas>` sinkron dengan scroll pengguna.
+- **Transisi Overlay Sheet**: Efek transisi mulus dari frame akhir video hero ke lembar spesifikasi arsitektur meja.
+- **Rasio Emas Asimetris ($\phi = 1.618$)**: Pembagian layout dua kolom 38.2% / 61.8% yang elegan, berirama, dan tidak berpusat pada satu sumbu template.
+- **Bedah Peranti Interaktif**: Direktori nomor arsitektural (`01` s/d `04`) dengan jendela bidik kamera (*viewfinder*) dan tabel kaskade spesifikasi teknis.
+- **Konsultasi Studio & Jaminan Perajin**: Formulir interaktif untuk pemesanan konfigurasi ruang kerja solid kustom.
+- **Gaya & Desain Murni**: Menggunakan Vanilla CSS dengan token variabel CSS terstruktur tanpa library CSS berlebih.
 
-## React Compiler
+## Teknologi
 
-The React Compiler is not enabled on this template because of its impact on dev & build performances. To add it, see [this documentation](https://react.dev/learn/react-compiler/installation).
+- **React 19**
+- **Vite 6**
+- **Vanilla CSS** (Token Rasio Emas & Tipografi Terkalibrasi)
+- **HTML5 Canvas API** (Scroll frame orchestration)
 
-## Expanding the Oxlint configuration
+## Menjalankan Proyek Secara Lokal
 
-If you are developing a production application, we recommend using TypeScript with type-aware lint rules enabled. Check out the [TS template](https://github.com/vitejs/vite/tree/main/packages/create-vite/template-react-ts) for information on how to integrate TypeScript and Oxlint's TypeScript related rules in your project.
+1. Salin repository:
+   ```bash
+   git clone https://github.com/michel-angelo/mockup1.git
+   cd mockup1
+   ```
+
+2. Pasang dependensi:
+   ```bash
+   npm install
+   ```
+
+3. Jalankan server lokal:
+   ```bash
+   npm run dev
+   ```
+
+4. Buka di browser:
+   ```
+   http://localhost:5173/
+   ```
