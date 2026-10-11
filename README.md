@@ -21,22 +21,26 @@ Landing page interaktif untuk brand ruang kerja fisik (*physical workspace archi
 ## Menjalankan Proyek Secara Lokal
 
 1. Salin repository:
+
    ```bash
    git clone https://github.com/michel-angelo/mockup1.git
    cd mockup1
    ```
 
 2. Pasang dependensi:
+
    ```bash
    npm install
    ```
 
 3. Jalankan server lokal:
+
    ```bash
    npm run dev
    ```
 
 4. Buka di browser:
-   ```
+
+   ```text
    http://localhost:5173/
    ```
