@@ -184,17 +184,39 @@ h1, h2, h3, h4, h5, h6 {
    COMPONENT STYLES & REVEAL ANIMATIONS
    ========================================================================== */
 
-/* ---------- Studio Navbar with Entrance Animation ---------- */
+/* ---------- Studio Navbar with Clean Hero Scroll Hide & Unique Editorial In-Animation ---------- */
 .studio-navbar {
   position: fixed;
   top: 0;
   left: 0;
   right: 0;
   z-index: 100;
-  background: rgba(251, 251, 253, 0.82);
+  background: rgba(251, 251, 253, 0.88);
   backdrop-filter: saturate(180%) blur(20px);
   -webkit-backdrop-filter: saturate(180%) blur(20px);
-  transition: all 0.35s var(--ease-editorial);
+  box-shadow: 0 4px 24px rgba(0, 0, 0, 0.04), 0 1px 2px rgba(0, 0, 0, 0.02);
+  transition: transform 0.72s cubic-bezier(0.16, 1, 0.3, 1), 
+              opacity 0.55s cubic-bezier(0.16, 1, 0.3, 1), 
+              visibility 0.72s;
+}
+
+/* Hidden during hero frame scroll (frames 1-120): ultra clean, zero distraction */
+.studio-navbar.nav-hidden {
+  transform: translateY(-100%);
+  opacity: 0;
+  pointer-events: none;
+  visibility: hidden;
+  transition: transform 0.42s cubic-bezier(0.4, 0, 0.2, 1), 
+              opacity 0.32s ease, 
+              visibility 0.42s;
+}
+
+/* Visible when next section (#specs) becomes active */
+.studio-navbar.nav-visible {
+  transform: translateY(0);
+  opacity: 1;
+  pointer-events: auto;
+  visibility: visible;
 }
 
 .nav-border-track {
@@ -207,33 +229,19 @@ h1, h2, h3, h4, h5, h6 {
   pointer-events: none;
 }
 
+/* Architectural hairline border expands from center */
 .nav-border-line {
   width: 100%;
   height: 100%;
   background: var(--border-subtle);
   transform: scaleX(0);
   transform-origin: center;
-  transition: transform 1.2s var(--ease-editorial) 0.1s;
+  transition: transform 0.3s ease;
 }
 
-.nav-mounted .nav-border-line {
+.nav-visible .nav-border-line {
   transform: scaleX(1);
-}
-
-.nav-pre-mount {
-  transform: translateY(-16px);
-  opacity: 0;
-}
-
-.nav-mounted {
-  transform: translateY(0);
-  opacity: 1;
-  transition: transform 0.8s var(--ease-editorial), opacity 0.8s var(--ease-editorial);
-}
-
-.nav-scrolled {
-  background: rgba(255, 255, 255, 0.95);
-  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.04);
+  transition: transform 1.1s cubic-bezier(0.16, 1, 0.3, 1) 0.14s;
 }
 
 .nav-inner {
@@ -258,23 +266,21 @@ h1, h2, h3, h4, h5, h6 {
   opacity: 0.8;
 }
 
+/* Brand diamond symbol spins and settles into alignment */
 .brand-symbol {
   font-size: 1rem;
   color: var(--text-primary);
   opacity: 0.85;
   display: inline-block;
-  transition: transform 0.8s var(--ease-editorial);
+  transform: rotate(-135deg) scale(0.5);
+  transition: transform 0.35s ease, opacity 0.35s ease;
 }
 
-.nav-pre-mount .brand-symbol {
-  transform: rotate(-90deg) scale(0.6);
-  opacity: 0;
-}
-
-.nav-mounted .brand-symbol {
+.nav-visible .brand-symbol {
   transform: rotate(0deg) scale(1);
   opacity: 0.85;
-  transition: transform 0.9s var(--ease-editorial) 0.15s, opacity 0.9s var(--ease-editorial) 0.15s;
+  transition: transform 0.85s cubic-bezier(0.16, 1, 0.3, 1) 0.18s, 
+              opacity 0.65s ease 0.18s;
 }
 
 .nav-brand:hover .brand-symbol {
@@ -286,6 +292,16 @@ h1, h2, h3, h4, h5, h6 {
   font-weight: 800;
   font-size: 1.05rem;
   letter-spacing: 0.08em;
+  transform: translateY(-6px);
+  opacity: 0;
+  transition: transform 0.35s ease, opacity 0.35s ease;
+}
+
+.nav-visible .brand-title {
+  transform: translateY(0);
+  opacity: 1;
+  transition: transform 0.7s cubic-bezier(0.16, 1, 0.3, 1) 0.22s, 
+              opacity 0.6s ease 0.22s;
 }
 
 .brand-tag {
@@ -297,17 +313,16 @@ h1, h2, h3, h4, h5, h6 {
   border: 1px solid var(--border-medium);
   border-radius: var(--radius-xs);
   color: var(--text-secondary);
-  transition: transform 0.6s var(--ease-editorial) 0.3s;
-}
-
-.nav-pre-mount .brand-tag {
-  transform: scale(0.9);
+  transform: scale(0.85);
   opacity: 0;
+  transition: transform 0.35s ease, opacity 0.35s ease;
 }
 
-.nav-mounted .brand-tag {
+.nav-visible .brand-tag {
   transform: scale(1);
   opacity: 1;
+  transition: transform 0.7s cubic-bezier(0.16, 1, 0.3, 1) 0.28s, 
+              opacity 0.6s ease 0.28s;
 }
 
 .nav-links {
@@ -333,28 +348,26 @@ h1, h2, h3, h4, h5, h6 {
   }
 }
 
+/* Staggered cascading reveal of navigation anchor items */
 .nav-anchor {
   color: var(--text-secondary);
   text-decoration: none;
   font-size: 0.875rem;
   font-weight: 500;
   position: relative;
-  transition: color 0.25s ease;
-}
-
-.nav-pre-mount .nav-anchor {
   opacity: 0;
-  transform: translateY(-8px);
-  filter: blur(3px);
+  transform: translateY(-12px);
+  filter: blur(4px);
+  transition: transform 0.3s ease, opacity 0.3s ease, filter 0.3s ease, color 0.25s ease;
 }
 
-.nav-mounted .nav-anchor {
+.nav-visible .nav-anchor {
   opacity: 1;
   transform: translateY(0);
   filter: blur(0);
-  transition: opacity 0.7s var(--ease-editorial) calc(0.2s + var(--nav-idx, 0) * 0.06s),
-              transform 0.7s var(--ease-editorial) calc(0.2s + var(--nav-idx, 0) * 0.06s),
-              filter 0.7s var(--ease-editorial) calc(0.2s + var(--nav-idx, 0) * 0.06s),
+  transition: transform 0.65s cubic-bezier(0.16, 1, 0.3, 1) calc(0.24s + var(--nav-idx, 0) * 0.065s),
+              opacity 0.55s cubic-bezier(0.16, 1, 0.3, 1) calc(0.24s + var(--nav-idx, 0) * 0.065s),
+              filter 0.55s cubic-bezier(0.16, 1, 0.3, 1) calc(0.24s + var(--nav-idx, 0) * 0.065s),
               color 0.25s ease;
 }
 
@@ -375,20 +388,29 @@ h1, h2, h3, h4, h5, h6 {
   color: var(--text-primary);
 }
 
-.nav-anchor:hover::after {
+.nav-anchor:hover::after,
+.nav-anchor.nav-anchor-active::after {
   transform: scaleX(1);
   transform-origin: left;
 }
 
-.nav-pre-mount .nav-btn-anim {
-  opacity: 0;
-  transform: translateY(-10px) scale(0.95);
+.nav-anchor.nav-anchor-active {
+  color: var(--text-primary);
+  font-weight: 600;
 }
 
-.nav-mounted .nav-btn-anim {
+/* CTA button reveal */
+.nav-btn-anim {
+  opacity: 0;
+  transform: translateY(-10px) scale(0.92);
+  transition: transform 0.3s ease, opacity 0.3s ease;
+}
+
+.nav-visible .nav-btn-anim {
   opacity: 1;
   transform: translateY(0) scale(1);
-  transition: all 0.85s var(--ease-editorial) 0.45s;
+  transition: transform 0.75s cubic-bezier(0.16, 1, 0.3, 1) 0.42s,
+              opacity 0.6s ease 0.42s;
 }
 
 /* ---------- Scroll-Driven Video Frame Hero with Optical Rack-Focus ---------- */
