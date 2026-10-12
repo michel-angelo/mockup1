@@ -2,10 +2,16 @@ import React, { useEffect, useRef, useState, useCallback } from 'react';
 
 const TOTAL_FRAMES = 120;
 
+const checkIsMobile = () => {
+  if (typeof window === 'undefined') return false;
+  return window.innerWidth <= 768 || (window.innerWidth < 1024 && window.innerHeight > window.innerWidth);
+};
+
 export function ScrollHero() {
   const containerRef = useRef(null);
   const canvasRef = useRef(null);
   const imagesRef = useRef([]);
+  const [isMobile, setIsMobile] = useState(() => checkIsMobile());
   const [loadedCount, setLoadedCount] = useState(0);
   const [currentFrame, setCurrentFrame] = useState(1);
   const [progress, setProgress] = useState(0);
@@ -23,37 +29,27 @@ export function ScrollHero() {
     return () => clearTimeout(timer);
   }, []);
 
-  // Preload frames
+  // Listen for device orientation / responsive resize to switch frame sets only when crossing threshold
   useEffect(() => {
-    let count = 0;
-    const images = [];
+    let resizeTimer = null;
+    const handleDeviceChange = () => {
+      clearTimeout(resizeTimer);
+      resizeTimer = setTimeout(() => {
+        const nextMobile = checkIsMobile();
+        setIsMobile(prev => (prev !== nextMobile ? nextMobile : prev));
+      }, 150);
+    };
 
-    for (let i = 1; i <= TOTAL_FRAMES; i++) {
-      const img = new Image();
-      img.src = `/images/frame/frame_${i}.webp`;
-      img.onload = () => {
-        count++;
-        setLoadedCount(count);
-        if (count === 1) {
-          drawCanvas(0);
-        }
-        if (count >= 15) {
-          setIsReady(true);
-        }
-      };
-      images.push(img);
-    }
-
-    imagesRef.current = images;
-
+    window.addEventListener('resize', handleDeviceChange);
+    window.addEventListener('orientationchange', handleDeviceChange);
     return () => {
-      images.forEach(img => {
-        img.onload = null;
-      });
+      window.removeEventListener('resize', handleDeviceChange);
+      window.removeEventListener('orientationchange', handleDeviceChange);
+      clearTimeout(resizeTimer);
     };
   }, []);
 
-  // Draw image on canvas with high DPI & cover aspect
+  // Draw image on canvas with high DPI (capped at 2 for mobile efficiency) & cover aspect
   const drawCanvas = useCallback((frameIdx) => {
     const canvas = canvasRef.current;
     if (!canvas) return;
@@ -63,7 +59,8 @@ export function ScrollHero() {
     const img = imagesRef.current[frameIdx];
     if (!img || !img.complete) return;
 
-    const dpr = window.devicePixelRatio || 1;
+    // Cap DPR at 2 to prevent excessive GPU allocation on high-density 3x mobile screens
+    const dpr = Math.min(window.devicePixelRatio || 1, 2);
     const width = canvas.clientWidth;
     const height = canvas.clientHeight;
 
@@ -75,14 +72,15 @@ export function ScrollHero() {
     ctx.save();
     ctx.scale(dpr, dpr);
 
-    // Clean studio background fill
+    // Studio background fill matching the frame backdrop
     ctx.fillStyle = '#f5f5f7';
     ctx.fillRect(0, 0, width, height);
 
-    const imgWidth = img.naturalWidth || 1920;
-    const imgHeight = img.naturalHeight || 1080;
+    // Portrait frames are 1080x1920; desktop frames are 1920x1080
+    const imgWidth = img.naturalWidth || (isMobile ? 1080 : 1920);
+    const imgHeight = img.naturalHeight || (isMobile ? 1920 : 1080);
 
-    // Use cover fit so the camera zoom feels fully immersive
+    // Cover fit maintains immersion across both landscape and portrait screens
     const scale = Math.max(width / imgWidth, height / imgHeight);
     const renderW = imgWidth * scale;
     const renderH = imgHeight * scale;
@@ -91,7 +89,48 @@ export function ScrollHero() {
 
     ctx.drawImage(img, offsetX, offsetY, renderW, renderH);
     ctx.restore();
-  }, []);
+  }, [isMobile]);
+
+  // Preload frames based on mobile vs desktop (Never load both sets to save bandwidth & memory)
+  useEffect(() => {
+    let count = 0;
+    let isCancelled = false;
+    const images = [];
+    setLoadedCount(0);
+    setIsReady(false);
+
+    // Mobile uses portrait 9:16 frames from /images/Potrait; desktop uses landscape 16:9 from /images/frame
+    const frameBase = isMobile 
+      ? '/images/Potrait/potrait_frame_' 
+      : '/images/frame/frame_';
+
+    for (let i = 1; i <= TOTAL_FRAMES; i++) {
+      const img = new Image();
+      img.src = `${frameBase}${i}.webp`;
+      img.onload = () => {
+        if (isCancelled) return;
+        count++;
+        setLoadedCount(count);
+        if (count === 1) {
+          drawCanvas(0);
+        }
+        if (count >= 12) {
+          setIsReady(true);
+        }
+      };
+      images.push(img);
+    }
+
+    imagesRef.current = images;
+
+    return () => {
+      isCancelled = true;
+      images.forEach(img => {
+        img.onload = null;
+        img.src = '';
+      });
+    };
+  }, [isMobile, drawCanvas]);
 
   // Handle scroll progress
   useEffect(() => {
