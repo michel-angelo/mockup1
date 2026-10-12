@@ -132,7 +132,7 @@ export function ScrollHero() {
     };
   }, [isMobile, drawCanvas]);
 
-  // Handle scroll progress
+  // Handle scroll progress with dedicated final-frame hold buffer before curtain slide-in
   useEffect(() => {
     const handleScroll = () => {
       if (!containerRef.current) return;
@@ -140,30 +140,37 @@ export function ScrollHero() {
       const containerHeight = containerRef.current.offsetHeight;
       const windowHeight = window.innerHeight;
 
-      // Total scroll range of the hero container
-      const totalScrollDistance = containerHeight - windowHeight;
-      // Reserve the final windowHeight (100vh) for the next-section curtain slide-over
-      const overlayTransitionDistance = windowHeight;
-      const frameScrubDistance = Math.max(1, totalScrollDistance - overlayTransitionDistance);
+      // The next section physically starts entering the bottom of the viewport at (containerHeight - 2 * windowHeight)
+      const slideInStart = Math.max(1, containerHeight - 2 * windowHeight);
+      
+      // Buffer zone: ensure all 120 frames finish and user holds on frame 120 BEFORE the next section enters
+      const holdBuffer = windowHeight * 0.35;
+      const frameScrubDistance = Math.max(1, slideInStart - holdBuffer);
 
       const currentScroll = -rect.top;
 
-      // Frames 1-120 scrub smoothly until frame 120 is reached
+      // Frames 1-120 scrub smoothly and firmly hit frame 120 at frameScrubDistance
       const rawProgress = Math.max(0, Math.min(1, currentScroll / frameScrubDistance));
       targetProgress.current = rawProgress;
 
-      // Next section overlay progress (0 to 1 during the final 100vh)
-      const rawOverlay = Math.max(0, Math.min(1, (currentScroll - frameScrubDistance) / overlayTransitionDistance));
+      // Next section curtain overlay ONLY begins when currentScroll passes slideInStart
+      const rawOverlay = Math.max(0, Math.min(1, (currentScroll - slideInStart) / windowHeight));
       setOverlayProgress(rawOverlay);
     };
 
     window.addEventListener('scroll', handleScroll, { passive: true });
     handleScroll();
 
-    // Smooth RAF loop for 60/120fps fluid interpolation
+    // Smooth RAF loop for fluid 60/120fps interpolation with touch-responsive lerp
     const renderLoop = () => {
       const diff = targetProgress.current - smoothProgress.current;
-      smoothProgress.current += diff * 0.18;
+      const lerpSpeed = isMobile ? 0.28 : 0.20;
+      smoothProgress.current += diff * lerpSpeed;
+
+      // Firm snap to boundary when nearing target (especially frame 120)
+      if (Math.abs(diff) < 0.002 || (targetProgress.current === 1 && diff < 0.03)) {
+        smoothProgress.current = targetProgress.current;
+      }
 
       const clamped = Math.max(0, Math.min(1, smoothProgress.current));
       const frameIdx = Math.min(TOTAL_FRAMES - 1, Math.max(0, Math.round(clamped * (TOTAL_FRAMES - 1))));
