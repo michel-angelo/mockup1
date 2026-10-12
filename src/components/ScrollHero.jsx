@@ -336,7 +336,7 @@ export function ScrollHero() {
 
         </div>
 
-        {/* Thin Scroll Progress Track (Bottom Left - 233px Fibonacci, 4px thin) */}
+        {/* Full-Width Scroll Progress Bar (Screen edge-to-edge on all devices) */}
         <div 
           className={`hero-scroll-progress ${initialMounted ? 'progress-in' : ''}`}
           style={{
@@ -344,10 +344,6 @@ export function ScrollHero() {
             transform: `translateY(${overlayProgress * 21}px)`
           }}
         >
-          <div className="progress-meta-row">
-            <span className="progress-label">ARSITEKTUR MEJA</span>
-            <span className="progress-fraction">{currentFrame} / {TOTAL_FRAMES}</span>
-          </div>
           <div className="progress-thin-track">
             <div className="progress-thin-fill" style={{ width: `${progress * 100}%` }} />
           </div>
